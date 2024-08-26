@@ -5,6 +5,10 @@ import re
 import sys
 import datetime
 
+homepath = os.path.expanduser("~")
+sys.path.append(homepath + "acolite")
+import acolite as ac
+
 
 def configure_acolite_directory(base_dir = None, collection = None, year = None):
     """
