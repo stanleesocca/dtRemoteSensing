@@ -4,40 +4,116 @@ import os
 import re
 import sys
 import datetime
-homepath = os.path.expanduser("~")
-sys.path.append(homepath + "acolite")
-import acolite as ac
 
 
-def create_acolite_input(year, collection, inputdir = None, check_size = False):
+def configure_acolite_directory(base_dir = None, collection = None, year = None):
+    """
+    create global configuration of acolite input and output directory structure from 
+    base directory and collection type and year. 
+
+    =========================================================================
+    Argument options
+    =========================================================================
+    base_dir: Base directory upon which the application/configuration for dtSat and dtAcolite will work 
+    collection: satellite sensor, either 'sentinel'or 'landsat'. This argument should be same as the directory collection name
+    year: year of analysis
+
+    =========================================================================
+    OUTPUT: 
+    =========================================================================
+    app_configuration: Dictionary of raw input directory, processed input and output directory. Provide mapping for 
+                        further downstream application.
+
+    =========================================================================
+    Example: 
+    =========================================================================
+    from dtAcolite import dtAcolite
+
+    app_configuration = dtAcolite.configure_acolite_directory(base_dir = "./test_dir", year = 2021, collection = "sentinel")
+    
+    """
+
+    if not base_dir: return "Please provide the base directory where you want the processing to be done. "
+    if not collection: return "Please provide the satellite collection: either 'sentinel' or 'landsat'"
+    if not year: return "Please provide the year of the collection. "
+
+    raw_inputdir = base_dir + f"/app_acolite/raw/{collection}/{year}"
+    acolite_inputdir = base_dir + f"/app_acolite/processed/inputdir/{collection}/{year}"
+    acolite_outputdir = base_dir + f"/app_acolite/processed/outputdir/{collection}/{year}"
+
+
+    if not os.path.exists(raw_inputdir):
+        os.makedirs(raw_inputdir)
+        print(f"Raw data for {collection} directory {raw_inputdir} is created...")
+    else: 
+        print(f"filepath {raw_inputdir} is already created !!!")
+
+    if not os.path.exists(acolite_inputdir):
+        os.makedirs(acolite_inputdir)
+        print(f"acolite input directory {acolite_inputdir} is created...")
+    else: 
+        print(f"filepath {acolite_inputdir} is already created !!!")
+
+
+    if not os.path.exists(acolite_outputdir):
+        os.makedirs(acolite_outputdir)
+        print(f"acolite input directory {acolite_outputdir} is created...")
+    else: 
+        print(f"filepath {acolite_outputdir} is already created !!!")
+
+
+    app_configuration = {
+        "year" : year, 
+        "collection" : collection, 
+        "raw_inputdir" : raw_inputdir, 
+        "acolite_inputdir" : acolite_inputdir, 
+        "acolite_outputdir" : acolite_outputdir
+    }
+
+    return app_configuration
+
+
+def create_acolite_input(app_configuration = {}):
     """
     This function create the acolite input files in the directory 'inputdir'. 
     
     =========================================================================
     Argument options
     =========================================================================
-    year: year of analysis
-    collection: satellite sensor, either 'sentinel'or 'landsat'. This argument should be same as the directory collection name
-    inputdir: Directory where the input files are stored.
-    check_size: experimental; Used for checking and filtering if the valid satellite files to downloaded 
+    app_configuration: Dictionary of configuration object containing the mapping relationship of input and output directory 
+
+    =========================================================================
+    OUTPUT: 
+    =========================================================================
+    filenames: List of filename(s) of the raw satellite zipped data. This filename(s) is used for creating individual
+               output director(ies) for the processed images. 
+    =========================================================================
+    Example: 
+    =========================================================================
+    from dtAcolite import dtAcolite
+
+    app_configuration = dtAcolite.configure_acolite_directory(base_dir = "./test_dir", year = 2021, collection = "sentinel")
+    inputfilenames = dtAcolite.create_acolite_input(app_configuration = app_configuration)
     
     """
+
+    collection = app_configuration["collection"]
+    raw_inputdir = app_configuration["raw_inputdir"]
+    acolite_inputdir = app_configuration["acolite_inputdir"]
+
     collections = ["sentinel", "landsat"]
     if collection not in collections:
         print("collection but be either sentinel or landsat. Other satellite collection will be supported in the future.")
         return 
     
-    raw_inputdir = f"./inputdir/{collection}/{year}"
+    if not raw_inputdir or raw_inputdir is None: 
+        return "Please provide the location of the input files."
+    
+    if not acolite_inputdir or acolite_inputdir is None: 
+        return "Please provide the location of the input files."
 
     filenames = [file.split(".")[0] for file in os.listdir(raw_inputdir) if file.endswith(".zip")]
-    
-    if check_size:
-        filenames = [file.split('.')[0] for file in os.listdir(raw_inputdir) if os.path.getsize(f"{raw_inputdir}/{file}")/1e6 >= 200.0]
-    
-    if not inputdir and collection: 
-        acolite_inputdir = f"./app_acolite/inputdir/{collection}/{year}"
-    else: 
-        acolite_inputdir = inputdir
+        
         
     if not os.path.exists(acolite_inputdir):
         os.makedirs(acolite_inputdir)
@@ -47,29 +123,40 @@ def create_acolite_input(year, collection, inputdir = None, check_size = False):
     
     return filenames
 
-def create_acolite_output(year, filenames, collection, outputdir = None):
+def create_acolite_output(filenames, app_configuration):
     """
     This function create the acolite output files in the directory 'outputdir'. 
     
     =========================================================================
     Argument options
     =========================================================================
-    year: year of analysis
-    filenames: output from 'create_acolite_input' function consisting of the filenames. 
-    collection: satellite sensor, either 'sentinel'or 'landsat'. This argument should be same as the directory collection name.
-    outputdir: Directory where the output files are stored.
+    filenames: List of filename(s) need to create individual directory for processed image. 
+    app_configuration: Dictionary of configuration object containing the mapping relationship of input and output directory 
+
+    =========================================================================
+    OUTPUT: 
+    =========================================================================
+    outfilepaths: List of output filepath(s) encoding the output directory of the processed image. This filepath(s) is 
+                used in batch-processing atmospheric correction by acolite.
+    
+    =========================================================================
+    Example: 
+    =========================================================================
+    from dtAcolite import dtAcolite
+
+    app_configuration = dtAcolite.configure_acolite_directory(base_dir = "./test_dir", year = 2021, collection = "sentinel")
+    inputfilenames = dtAcolite.create_acolite_input(app_configuration = app_configuration)
+    outfilepaths   = dtAcolite.create_acolite_output(app_configuration=app_configuration, filenames=inputfilenames)
     
     """
+
+    collection = app_configuration["collection"]
+    acolite_outputdir = app_configuration["acolite_outputdir"]
     
     collections = ["sentinel", "landsat"]
     if collection not in collections:
         print("collection but be either sentinel or landsat. Other satellite collection will be supported in the future.")
         return 
-    
-    if not outputdir and collection: 
-        acolite_outputdir = f"./app_acolite/outputdir/{collection}/{year}"
-    else: 
-        acolite_outputdir = outputdir
         
     if not os.path.exists(acolite_outputdir):
         print(f"output directory does not exist, creating a new directory {acolite_outputdir}")
@@ -88,18 +175,34 @@ def create_acolite_output(year, filenames, collection, outputdir = None):
             
     return outfilepaths
 
-def unzip_inputfiles(inputdir = None, outputdir = None, check_size = False):
+def unzip_inputfiles(app_configuration = {}):
     
     """
     This function unzip all the downloaded files from inputdir and place them into outputdir 
     
     =========================================================================
     Argument options
+    ========================================================================= 
+    app_configuration: Dictionary of configuration object containing the mapping relationship of input and output directory 
+
     =========================================================================
-    inputdir: Directory where the input files are stored.
-    outputdir: Directory where the output files are stored. 
-    check_size: experimental; Used for checking and filtering if valid satellite files is unzip. 
+    OUTPUT: 
+    =========================================================================
+    None. Just unzip the file(s) to the relevant location as provided by the app_configuration
+    
+    =========================================================================
+    Example: 
+    =========================================================================
+    from dtAcolite import dtAcolite
+
+    app_configuration = dtAcolite.configure_acolite_directory(base_dir = "./test_dir", year = 2021, collection = "sentinel")
+    inputfilenames = dtAcolite.create_acolite_input(app_configuration = app_configuration)
+    outfilepaths   = dtAcolite.create_acolite_output(app_configuration=app_configuration, filenames=inputfilenames)
+    dtAcolite.unzip_inputfiles(app_configuration=app_configuration)
     """
+
+    inputdir = app_configuration["raw_inputdir"]
+    outputdir = app_configuration["acolite_inputdir"]
     
     assert inputdir is not None, "input directory is not define" 
     
@@ -108,11 +211,6 @@ def unzip_inputfiles(inputdir = None, outputdir = None, check_size = False):
         print(f"output directory is found in input directory {outputdir}")
     
     raw_scenes = [f"{inputdir}/{file}" for file in os.listdir(inputdir)]
-    if check_size:
-        raw_scenes = [f"{inputdir}/{file}" for file in os.listdir(inputdir) if os.path.getsize(f"{inputdir}/{file}")/1e6 >= 200.0]
-        
-    # filenames = [re.search("S2.*E", file.split(".z")[0]).group(0) for file in raw_scenes if file.endswith(".zip")]
-    # filenames = [file for file in filenames if file not in os.listdir(outputdir)]
     
     raw_scenes = [file for file in raw_scenes if file.endswith(".zip") and re.search("S2.*E", file.split(".z")[0]).group(0) not in os.listdir(outputdir)]
 
@@ -134,7 +232,7 @@ def acolite_batch_run(settings, inputfile, outputdir):
     inputfile: Directory where the input files are stored. 
     outputdir: Directory where the output files are stored.
     """
-    
+
     for i in range(len(inputfile)):
         print("---------------------------------------------------------------------------------------")
         settings['inputfile'] = inputfile[i]
