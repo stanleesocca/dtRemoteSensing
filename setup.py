@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name="dtRemote", 
-      version="0.1.0", 
+      version="0.2.0", 
       author="Stanley Nmor", 
       author_email="stanley.nmor@nioz.nl",
       description="Remote sensing package for LTER-LIFE", 
