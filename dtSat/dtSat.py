@@ -449,6 +449,43 @@ def upload_local_directory_to_minio(client = None, bucket_name = None, local_pat
             client.fput_object(bucket_name, remote_path, local_file)
             
         print(f"{local_file} uploaded to MiniIO....")
+
+def upload_satellite_to_minio(client = None, bucket_name = None, local_path = None, 
+                              minio_path = None, collection = "sentinel", year = 2015):
+    """
+    Utility function for uploading files from sentinel-2 data as zip or unzip file to a miniO S3 Bucket 
+    To be integrated with upload_local_directory_to_minio. 
+    -----------------
+    Example:
+    local_path = "../app_acolite/outputdir"
+    upload_satellite_to_minio(client = minio_client,
+                              bucket_name = param_s3_public_bucket,  
+                              local_path = local_path, 
+                              minio_path = f"/acolite_output/", collection = "landsat", year = 2023)
+    """
+    
+    L2W_files = glob.glob(f"{local_path}/**")
+    
+    if any([os.path.splitext(file)[1]  == ".zip" for file in L2W_files]):
+        for local_file in L2W_files:
+            local_file = local_file.replace(os.sep, "/") # Replace \ with / on Windows
+            if not os.path.isfile(local_file):
+                upload_satellite_to_minio(client, bucket_name, local_file, minio_path + "/" + os.path.basename(local_file))
+            else:
+                remote_path = os.path.join(minio_path, local_file[1 + len(local_path):])
+                remote_path = remote_path.replace(os.sep, "/")  # Replace \ with / on Windows
+                client.fput_object(bucket_name, remote_path, local_file)
+            print(f"{local_file} uploaded to MiniIO....")
+    else:    
+        for local_file in L2W_files:
+            local_file = local_file.replace(os.sep, "/") # Replace \ with / on Windows
+            if not os.path.isfile(local_file):
+                upload_satellite_to_minio(client, bucket_name, local_file, minio_path + "/" + os.path.basename(local_file))
+            else:
+                remote_path = os.path.join(minio_path, local_file[1 + len(local_path):])
+                remote_path = remote_path.replace(os.sep, "/")  # Replace \ with / on Windows
+                client.fput_object(bucket_name, remote_path, local_file)
+            print(f"{local_file} uploaded to MiniIO....")
         
 
 def download_acolite_from_minio(client = None, bucket_name = "naa-vre-waddenzee-shared", tile = "T31UFU", collection = "sentinel", dir_path = "./", year = 2015):
