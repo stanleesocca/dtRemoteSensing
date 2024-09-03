@@ -5,9 +5,9 @@ import re
 import sys
 import datetime
 
-homepath = os.path.expanduser("~")
-sys.path.append(homepath + "acolite")
-import acolite as ac
+# homepath = os.path.expanduser("~")
+# sys.path.append(homepath + "acolite")
+# import acolite as ac
 
 
 def configure_acolite_directory(base_dir = None, collection = None, year = None):
@@ -232,27 +232,27 @@ def unzip_inputfiles(app_configuration = {}):
             print(f"{i+1}: Downloaded file unzipping completed!!!!") 
     
     
-def acolite_batch_run(settings, inputfile, outputdir):
+# def acolite_batch_run(settings, inputfile, outputdir):
     
-    """
-    This function run acolite program in batch mode. 
+#     """
+#     This function run acolite program in batch mode. 
     
-    =========================================================================
-    Argument options
-    =========================================================================
-    settings: A dictionary of user settings (see acolite manual)
-    inputfile: Directory where the input files are stored. 
-    outputdir: Directory where the output files are stored.
-    """
+#     =========================================================================
+#     Argument options
+#     =========================================================================
+#     settings: A dictionary of user settings (see acolite manual)
+#     inputfile: Directory where the input files are stored. 
+#     outputdir: Directory where the output files are stored.
+#     """
 
-    for i in range(len(inputfile)):
-        print("---------------------------------------------------------------------------------------")
-        settings['inputfile'] = inputfile[i]
-        settings['output'] = outputdir[i]
-        ac.acolite.acolite_run(settings=settings)
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"processing done and output is in {inputfile[i]}")
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+#     for i in range(len(inputfile)):
+#         print("---------------------------------------------------------------------------------------")
+#         settings['inputfile'] = inputfile[i]
+#         settings['output'] = outputdir[i]
+#         ac.acolite.acolite_run(settings=settings)
+#     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print(f"processing done and output is in {inputfile[i]}")
+#     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     
     
 def find_remaining_files(year, inputdir = None, outputdir = None):
