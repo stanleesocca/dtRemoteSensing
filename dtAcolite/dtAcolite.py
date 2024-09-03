@@ -44,6 +44,7 @@ def configure_acolite_directory(base_dir = None, collection = None, year = None)
     raw_inputdir = base_dir + f"/app_acolite/raw/{collection}/{year}"
     acolite_inputdir = base_dir + f"/app_acolite/processed/inputdir/{collection}/{year}"
     acolite_outputdir = base_dir + f"/app_acolite/processed/outputdir/{collection}/{year}"
+    acolite_csv = base_dir + f"/app_acolite/processed/csv/{collection}/{year}"
 
 
     if not os.path.exists(raw_inputdir):
@@ -65,13 +66,20 @@ def configure_acolite_directory(base_dir = None, collection = None, year = None)
     else: 
         print(f"filepath {acolite_outputdir} is already created !!!")
 
+    if not os.path.exists(acolite_csv):
+        os.makedirs(acolite_csv)
+        print(f"acolite input directory {acolite_csv} is created...")
+    else: 
+        print(f"filepath {acolite_csv} is already created !!!")
+
 
     app_configuration = {
         "year" : year, 
         "collection" : collection, 
         "raw_inputdir" : raw_inputdir, 
         "acolite_inputdir" : acolite_inputdir, 
-        "acolite_outputdir" : acolite_outputdir
+        "acolite_outputdir" : acolite_outputdir, 
+        "acolite_csv" : acolite_csv
     }
 
     return app_configuration
