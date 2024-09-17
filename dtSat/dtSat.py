@@ -97,7 +97,7 @@ def get_sentinel_catalogue(start_date, end_date, data_collection, aoi, product_t
                     f" and Attributes/OData.CSC.StringAttribute/any(att:att/Name eq 'productType' and att/OData.CSC.StringAttribute/Value eq '{product_type}')"
                     f" and OData.CSC.Intersects(area=geography'SRID=4326;{aoi})"
                     f" and ContentDate/Start gt {start_date}T00:00:00.000Z"
-                    f" and ContentDate/Start lt {end_date}T00:00:00.000Z")
+                    f" and ContentDate/Start lt {end_date}T00:00:00.000Z&$orderby=ContentDate/Start desc")
     
     if max_results is not None: 
         if (max_results>0) & (max_results<=1000): endpoint_url += '&$top={}'.format(max_results)
