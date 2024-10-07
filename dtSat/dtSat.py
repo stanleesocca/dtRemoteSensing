@@ -372,7 +372,7 @@ def filter_by_orbit(x, orbit, name_only = True):
     filter_by_orbit(catalogue_response, orbit = "R051", name_only = False)
     """
     
-    idx = [i for i in range(len(x["value"])) if extract_orbit(x['value'][i]['Name']) == orbit]
+    idx = [i for i in range(len(x["value"])) if extract_orbit(x['value'][i]['Name']) in orbit]
     metadata_context = x["@odata.context"]
     if name_only: 
         res = [x['value'][i]['Name']  for i in idx]
@@ -396,7 +396,7 @@ def filter_by_orbit_and_tile(x, orbit, tile, name_only = True):
     filter_by_orbit_and_tile(catalogue_response, orbit = "R051", tile = "T31UFV", name_only = False)
     """
     
-    idx = [i for i in range(len(x["value"])) if extract_orbit(x['value'][i]['Name']) == orbit and extract_tile(x['value'][i]['Name']) == tile]
+    idx = [i for i in range(len(x["value"])) if extract_orbit(x['value'][i]['Name']) in orbit and extract_tile(x['value'][i]['Name']) in tile]
     metadata_context = x["@odata.context"]
     if name_only: 
         res = [x['value'][i]['Name']  for i in idx]
