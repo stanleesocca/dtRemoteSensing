@@ -1,4 +1,5 @@
 from dtAcolite import dtAcolite
+from dtSat import dtSat
 
 app_configuration = dtAcolite.configure_acolite_directory(base_dir = "../Test_dir", year = 2021, collection = "sentinel")
 app_configuration
