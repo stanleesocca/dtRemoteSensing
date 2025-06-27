@@ -387,6 +387,30 @@ def filter_by_orbit(x, orbit, name_only = True):
               "@odata.nextLink" : metadata_nextlink}
     return res 
 
+def filter_by_tile(x, tile, name_only = True):
+    """
+    Utility function for filtering/subsetting a single orbit from a catalogue
+    
+    -----------------
+    Example:
+    filter_by_orbit(catalogue_response, orbit = "R051", name_only = False)
+    """
+    
+    idx = [i for i in range(len(x["value"])) if extract_tile(x['value'][i]['Name']) in tile]
+    metadata_context = x["@odata.context"]
+    if name_only: 
+        res = [x['value'][i]['Name']  for i in idx]
+    else: 
+        res = [x['value'][i] for i in idx]
+        if "@odata.nextLink" in x.keys(): 
+            metadata_nextlink = x["@odata.nextLink"] 
+        else: 
+            metadata_nextlink = ""
+        res = {'@odata.context' : metadata_context, 
+              'value' : res, 
+              "@odata.nextLink" : metadata_nextlink}
+    return res 
+
 def filter_by_orbit_and_tile(x, orbit, tile, name_only = True):
     """
     Utility function for extracting a single orbit AND tile from a catalogue
