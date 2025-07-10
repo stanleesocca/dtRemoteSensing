@@ -452,9 +452,9 @@ def upload_local_directory_to_minio(client = None, bucket_name = None, local_pat
     assert os.path.isdir(local_path)
     
     if collection == "sentinel":
-        L2W_files = glob.glob(f"{local_path}/{collection}/{year}/**/S2**L2W**") 
+        L2W_files = glob.glob(f"{local_path}/**/S2**L2W**") 
     elif collection == "landsat":
-        L2W_files = glob.glob(f"{local_path}/{collection}/{year}/**/L8**L2W**")
+        L2W_files = glob.glob(f"{local_path}/**/L8**L2W**")
     else: 
         print("Can only support Sentinel and Landsat files at the moment...")
         return 
